@@ -10,7 +10,7 @@ jobs:
     if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
       - name: Setup JDK 17
@@ -34,7 +34,7 @@ jobs:
         run: bash ./gradlew -PappVerName=${{ env.VERSION }} assembleRelease
       - name: Upload built apk
         if: success()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Zhiliao_${{ env.VERSION }}
           path: ${{ github.workspace }}/app/build/outputs/apk/release
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.event.head_commit.message, '[skip ci]') }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Send commit to telegram
         uses: appleboy/telegram-action@master
         with:
