@@ -122,12 +122,11 @@ class CustomFilterV2 : BaseHook() {
                 || text.contains("收藏")
                 || text.contains("浏览")
             ) {
+                if (text.contains("商品")) {
+                    return true
+                }
                 continue
             }
-            if (text.contains("商品")) {
-                return true
-            }
-
             log("作者: $text")
             if (Helper.regex_author != null && Helper.regex_author.matcher(text).find()) {
                 return true
