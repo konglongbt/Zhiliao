@@ -37,7 +37,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 @SuppressWarnings("deprecation")
-public class ZhihuPreference implements IHook {
+public class ZhihuPreference extends BaseHook {
     final static String modulePackage = "com.shatyuka.zhiliao";
 
     private static Object preference_zhiliao;
@@ -89,7 +89,6 @@ public class ZhihuPreference implements IHook {
     static Constructor<?> ZHIntent_ctor;
 
     static String getLayoutResId_MethodName;
-    static String getResourceId_MethodName;
     static String onCreate_MethodName;
     static String onPreferenceClick_MethodName;
 
@@ -131,7 +130,6 @@ public class ZhihuPreference implements IHook {
             getKey = Preference.getMethod("C");
             setChecked = SwitchPreference.getMethod("g", boolean.class);
             getText = EditTextPreference.getMethod("i");
-            getResourceId_MethodName = "v";
         } catch (NoSuchMethodException ignore) {
             findPreference = Helper.getMethodByParameterTypes(BasePreferenceFragment.getSuperclass(), CharSequence.class);
             setSummary = Preference.getMethod("B0", CharSequence.class);
@@ -140,7 +138,6 @@ public class ZhihuPreference implements IHook {
             getKey = Preference.getMethod("o");
             setChecked = SwitchPreference.getMethod("O0", boolean.class);
             getText = EditTextPreference.getMethod("R0");
-            getResourceId_MethodName = "p";
         }
 
         getLayoutResId_MethodName = Arrays.stream(BasePreferenceFragment.getDeclaredMethods())

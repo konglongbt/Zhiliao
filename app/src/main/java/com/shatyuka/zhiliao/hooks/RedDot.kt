@@ -40,14 +40,14 @@ class RedDot : BaseHook() {
             NotiMsgModel =
                 classLoader.loadClass("com.zhihu.android.notification.model.viewmodel.NotiMsgModel")
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
         try {
             ViewModel =
                 classLoader.loadClass("com.zhihu.android.app.feed.ui.fragment.help.tabhelp.model.ViewModel")
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
         try {
             BottomNavMenuItemView_setUnreadCount = Helper.getMethodByParameterTypes(
@@ -55,7 +55,7 @@ class RedDot : BaseHook() {
                 Int::class.javaPrimitiveType
             )
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
         try {
             BottomNavMenuItemViewForIconOnly_setUnreadCount = Helper.getMethodByParameterTypes(
@@ -63,7 +63,7 @@ class RedDot : BaseHook() {
                 Int::class.javaPrimitiveType
             )
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
         try {
@@ -82,7 +82,7 @@ class RedDot : BaseHook() {
                 Int::class.javaPrimitiveType
             )
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
         try {
@@ -92,7 +92,7 @@ class RedDot : BaseHook() {
                 Boolean::class.javaPrimitiveType
             )
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
         try {
@@ -103,7 +103,7 @@ class RedDot : BaseHook() {
                     Boolean::class.javaPrimitiveType
                 )
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
         try {
@@ -111,14 +111,14 @@ class RedDot : BaseHook() {
                 classLoader.loadClass("com.zhihu.android.app.feed.ui2.tab.RevisitView")
                     .getDeclaredMethod("getCanShowRedDot")
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
         try {
             customTabView =
                 classLoader.loadClass("com.zhihu.android.app.feed.explore.view.CustomTabContainerView\$CustomTabView")
         } catch (e: Exception) {
-            logE(e)
+            logE(e.message)
         }
 
     }

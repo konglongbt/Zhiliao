@@ -22,20 +22,15 @@ class HotListFilter : BaseHook() {
     private lateinit var rankFeedModule: Class<*>
     private lateinit var rankFeed: Class<*>
     private lateinit var rankFeedContent: Class<*>
-    private lateinit var linkArea: Class<*>
-    private lateinit var rankFeed_targetField: Field
-    private lateinit var rankFeedContent_linkAreaField: Field
-    private lateinit var linkArea_urlField: Field
     private lateinit var response: Class<*>
     private lateinit var response_bodyField: Field
     private lateinit var retAndArgTypeQqResponseMethodList: List<Method>
-    private lateinit var rankFeedList_displayNumField: Field
     private var templateCardModel: Class<*>? = null
     private lateinit var templateCardModel_dataField: Field
     private lateinit var basePagingFragment: Class<*>
 
     private companion object {
-        val QUESTION_URL_PATTERN = Pattern.compile("zhihu\\.com/question/")
+        val QUESTION_URL_PATTERN: Pattern = Pattern.compile("zhihu\\.com/question/")
     }
 
 
@@ -57,16 +52,6 @@ class HotListFilter : BaseHook() {
         rankFeedModule = classLoader.loadClass("com.zhihu.android.api.model.RankFeedModule")
         rankFeed = classLoader.loadClass("com.zhihu.android.api.model.RankFeed")
         rankFeedContent = classLoader.loadClass("com.zhihu.android.api.model.RankFeedContent")
-        linkArea = classLoader.loadClass("com.zhihu.android.api.model.RankFeedContent\$LinkArea")
-
-        rankFeed_targetField = rankFeed.getDeclaredField("target")
-        rankFeed_targetField.isAccessible = true
-
-        rankFeedContent_linkAreaField = rankFeedContent.getDeclaredField("linkArea")
-        rankFeedContent_linkAreaField.isAccessible = true
-
-        linkArea_urlField = linkArea.getDeclaredField("url")
-        linkArea_urlField.isAccessible = true
 
         response = classLoader.loadClass("retrofit2.Response")
         response_bodyField = Arrays.stream(response.declaredFields)
@@ -79,8 +64,6 @@ class HotListFilter : BaseHook() {
                 .filter { method: Method -> method.parameterCount == 1 }
                 .filter { method: Method -> method.getParameterTypes()[0] == response }
                 .collect(Collectors.toList())
-        rankFeedList_displayNumField = rankFeedList.getDeclaredField("display_num")
-        rankFeedList_displayNumField.isAccessible = true
 
         try {
             templateCardModel = classLoader.loadClass("com.zhihu.android.bean.TemplateCardModel")
@@ -121,7 +104,7 @@ class HotListFilter : BaseHook() {
                     }
 
                     // 热榜全部展示, 不折叠
-                    rankFeedList_displayNumField[rankFeedList] = rankFeedListData.size
+                    XposedHelpers.setObjectField(rankFeedList, "display_num", rankFeedListData.size)
                 }
             })
         }
@@ -137,9 +120,9 @@ class HotListFilter : BaseHook() {
         }
         rankListData.removeIf { feed ->
             try {
-                return@removeIf preFilter(feed)
-                        || isAd(feed as Any)
-                        || shouldFilterEveryoneSeeRankFeed(feed)
+                return@removeIf preFilter(feed) || isAd(feed as Any) || shouldFilterEveryoneSeeRankFeed(
+                    feed
+                )
             } catch (e: Exception) {
                 logE(e)
                 return@removeIf false
@@ -159,8 +142,7 @@ class HotListFilter : BaseHook() {
         val target = JacksonHelper.JsonNode_get.invoke(data, "target")
         if (Helper.regex_title != null) {
             val title = JacksonHelper.JsonNode_get.invoke(
-                JacksonHelper.JsonNode_get.invoke(target, "title_area"),
-                "text"
+                JacksonHelper.JsonNode_get.invoke(target, "title_area"), "text"
             )?.toString()
             if (Helper.regex_title.matcher(title as CharSequence).find()) {
                 return true
@@ -169,8 +151,7 @@ class HotListFilter : BaseHook() {
         if (Helper.regex_author != null) {
             val author = JacksonHelper.JsonNode_get.invoke(
                 JacksonHelper.JsonNode_get.invoke(
-                    target,
-                    "author_area"
+                    target, "author_area"
                 ), "name"
             )?.toString()
             if (Helper.regex_author.matcher(author as CharSequence).find()) {
@@ -182,8 +163,7 @@ class HotListFilter : BaseHook() {
             if (Helper.regex_content.matcher(
                     JacksonHelper.JsonNode_get.invoke(
                         JacksonHelper.JsonNode_get.invoke(
-                            target,
-                            "excerpt_area"
+                            target, "excerpt_area"
                         ), "text"
                     )?.toString() ?: ""
                 ).find()
@@ -194,14 +174,25 @@ class HotListFilter : BaseHook() {
         return false
     }
 
+    private fun preProcessRankFeed(rankFeed: Any) {
+        XposedHelpers.setObjectField(rankFeed, "head_zone", null)
+        XposedHelpers.setObjectField(rankFeed, "headZones", emptyList<Any>())
+    }
+
     private fun isAd(rankFeedInstance: Any): Boolean {
+        return hasXiaomi(rankFeedInstance) || hasZhihuUrl(rankFeedInstance)
+    }
+
+    // 买热搜的钱也算研发资金吗?
+    private fun hasXiaomi(rankFeedInstance: Any): Boolean {
         if (rankFeedInstance.javaClass == rankFeed) {
             try {
-                val target = rankFeed_targetField[rankFeedInstance]
-                val linkAreaInstance = rankFeedContent_linkAreaField[target]
-                val url =
-                    Optional.ofNullable(linkArea_urlField[linkAreaInstance] as String).orElse("")
-                return !QUESTION_URL_PATTERN.matcher(url).find()
+                val target = XposedHelpers.getObjectField(rankFeedInstance, "target")
+                val titleArea = XposedHelpers.getObjectField(target, "titleArea")
+                val title = XposedHelpers.getObjectField(titleArea, "text") as String
+                if (title.contains("小米")) {
+                    return true
+                }
             } catch (e: Exception) {
                 logE(e)
             }
@@ -209,8 +200,21 @@ class HotListFilter : BaseHook() {
         return false
     }
 
-    private fun preProcessRankFeed(rankFeed: Any) {
-        XposedHelpers.setObjectField(rankFeed, "head_zone", null)
-        XposedHelpers.setObjectField(rankFeed, "headZones", emptyList<Any>())
+    private fun hasZhihuUrl(rankFeedInstance: Any): Boolean {
+        if (rankFeedInstance.javaClass == rankFeed) {
+            try {
+                val target = XposedHelpers.getObjectField(rankFeedInstance, "target")
+                val linkAreaInstance = XposedHelpers.getObjectField(target, "linkArea")
+                val url = Optional.ofNullable(
+                    XposedHelpers.getObjectField(
+                        linkAreaInstance, "url"
+                    ) as String
+                ).orElse("")
+                return !QUESTION_URL_PATTERN.matcher(url).find()
+            } catch (e: Exception) {
+                logE(e)
+            }
+        }
+        return false
     }
 }
