@@ -180,7 +180,7 @@ class HotListFilter : BaseHook() {
     }
 
     private fun isAd(rankFeedInstance: Any): Boolean {
-        return hasXiaomi(rankFeedInstance) || hasZhihuUrl(rankFeedInstance)
+        return hasZhihuUrl(rankFeedInstance)
     }
 
     // 买热搜的钱也算研发资金吗?
