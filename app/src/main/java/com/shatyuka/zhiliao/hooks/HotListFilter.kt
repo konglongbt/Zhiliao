@@ -184,8 +184,8 @@ class HotListFilter : BaseHook() {
         XposedHelpers.setObjectField(rankFeed, "headZones", emptyList<Any>())
     }
 
-    private fun isAd(rankFeedInstance: Any): Boolean {
-        return isShitAd(rankFeedInstance) || !isZhihuQuestionUrl(rankFeedInstance)
+    private fun isAd(rankFeedInstance: Any): Boolean {        
+        return !isZhihuQuestionUrl(rankFeedInstance)
     }
 
     private fun isShitAd(rankFeedInstance: Any): Boolean {
