@@ -10,6 +10,7 @@ import com.shatyuka.zhiliao.hooks.CardViewFeatureShortFilter;
 import com.shatyuka.zhiliao.hooks.CardViewMixShortFilter;
 import com.shatyuka.zhiliao.hooks.Cleaner;
 import com.shatyuka.zhiliao.hooks.ColorMode;
+import com.shatyuka.zhiliao.hooks.CommentAd;
 import com.shatyuka.zhiliao.hooks.ConfigFetcher;
 import com.shatyuka.zhiliao.hooks.CustomFilter;
 import com.shatyuka.zhiliao.hooks.CustomFilterV2;
@@ -47,6 +48,7 @@ public class Hooks {
             new FeedAd(),
             new AnswerListAd(),
             new AnswerAd(),
+            new CommentAd(),
             new ShareAd(),
             new NextAnswer(),
             new RedDot(),
