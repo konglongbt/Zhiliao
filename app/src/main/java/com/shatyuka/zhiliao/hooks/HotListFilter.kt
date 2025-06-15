@@ -185,7 +185,7 @@ class HotListFilter : BaseHook() {
     }
 
     private fun isAd(rankFeedInstance: Any): Boolean {
-        return isShitAd(rankFeedInstance) || !isZhihuQuestionUrl(rankFeedInstance)
+        return !isZhihuQuestionUrl(rankFeedInstance)
     }
 
     private fun isShitAd(rankFeedInstance: Any): Boolean {
